@@ -1,0 +1,146 @@
+---
+title: "Integrate gene expression datasets, divided by Batch and Donor"
+author: "Raymond Louie"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    number_sections: yes
+    self_contained: yes
+    toc: yes
+    toc_float: yes
+  pdf_document:
+    toc: yes   
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache=FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(results = 'asis')
+knitr::opts_chunk$set(fig.width = 25)
+knitr::opts_chunk$set(fig.height = 10)
+knitr::opts_chunk$set(fig.pos = '!h')
+knitr::opts_knit$set(root.dir = getwd())
+knitr::knit_hooks$set(timeit = local({
+  now = NULL
+  function(before, options) {
+    if (before) {
+      now <<- Sys.time()
+    } else {
+      res = difftime(Sys.time(), now)
+      now <<- NULL
+      # use options$label if you want the chunk label as well
+      paste('Time for this code chunk:', as.character(res))
+    }
+  }})
+)
+```
+```{r clear, echo=FALSE}
+rm(list = ls())
+graphics.off()
+```
+
+
+# Load libraries and read seurat objects
+
+```{r}
+library(Matrix)
+library(dplyr)
+library(Seurat)
+library(ggplot2)
+library(grid)
+require(gridExtra)
+library(data.table)
+library(knitr)
+library(kableExtra)
+
+seurat_gene = readRDS("../adaptive_gene.rds")
+seurat_protein = readRDS("../10_1016_j_cell_2021_02_018_adaptive_protein.rds")
+
+```
+
+The following steps mimic those in https://satijalab.org/seurat/articles/integration_introduction.html. For more information, please see this link
+
+# Normalize each batch-donor dataset
+
+Normalize each batch_donor data. Note that the original paper [Time-resolved systems immunology reveals a late juncture linked to fatal COVID-19, Cell 2021](https://pubmed.ncbi.nlm.nih.gov/33713619/) performed clustering on the gene expression data by regressing out Batch and Donor information. We thus assume these two factors contribute to unwanted technical effects to the data, and thus Seurat's integration pipeline will be used to correct for these technical differences.
+
+```{r}
+meta_df = seurat_protein@meta.data
+meta_df$batch_donor = paste0(meta_df$Batch,"_",
+                             meta_df$Donor)
+unique_batch_donor = unique(meta_df$batch_donor)
+# unique_batch_donor=unique_batch_donor[1:2]
+
+seurat_gene.list = list()
+for (ind in 1:length(unique_batch_donor)){
+  curr_batch_donor = unique_batch_donor[[ind]]
+  keep_cells = rownames(meta_df)[which(meta_df$batch_donor %in% curr_batch_donor)]
+  curr_matrix = seurat_gene@assays$RNA@data[,keep_cells]
+  curr_meta_gene = seurat_gene@meta.data[keep_cells,]
+  curr_meta_protein = seurat_protein@meta.data[keep_cells,]
+  curr_meta = cbind(curr_meta_gene,
+                    curr_meta_protein[,setdiff(colnames(curr_meta_protein),
+                                               colnames(curr_meta_gene))])
+  
+  curr_seurat <- CreateSeuratObject(counts = curr_matrix,
+                                    meta.data =curr_meta)
+  curr_seurat <- NormalizeData(curr_seurat)
+  curr_seurat <- FindVariableFeatures(curr_seurat, selection.method = "vst", nfeatures = 2000)
+  seurat_gene.list[[curr_batch_donor]] = curr_seurat    
+}
+
+
+```
+
+
+# Integration
+
+```{r}
+
+features <- SelectIntegrationFeatures(object.list = seurat_gene.list)
+immune.anchors <- FindIntegrationAnchors(object.list = seurat_gene.list, anchor.features = features)
+# this command creates an 'integrated' data assay
+immune.combined <- IntegrateData(anchorset = immune.anchors)
+
+```
+
+# Integrated analysis and visualization
+
+```{r}
+# specify that we will perform downstream analysis on the corrected data note that the
+# original unmodified data still resides in the 'RNA' assay
+DefaultAssay(immune.combined) <- "integrated"
+
+# Run the standard workflow for visualization and clustering
+immune.combined <- ScaleData(immune.combined, verbose = FALSE)
+immune.combined <- RunPCA(immune.combined, npcs = 30, verbose = FALSE)
+immune.combined <- RunUMAP(immune.combined, reduction = "pca", dims = 1:30)
+
+
+```
+
+
+```{r}
+Idents(immune.combined) = immune.combined$cell_type
+
+# Visualization
+p1 <- DimPlot(immune.combined, reduction = "umap", group.by = "Batch")
+p2 <- DimPlot(immune.combined, reduction = "umap", label = TRUE, repel = TRUE)
+p1 + p2
+
+```
+
+
+# Save integrated seurat object
+
+
+```{r}
+integrated_seurat_gene = immune.combined
+saveRDS(integrated_seurat_gene,
+        file="integrated_seurat_gene.rds")
+
+```
+
+
+
