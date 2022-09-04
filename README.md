@@ -18,14 +18,14 @@ This repository contains scripts and generated data to assist in the [2022 ASI S
 
 ## Paper and datasets
 
-The datasets for this Hackathon are taken from two papers: [Liu_et_al_Cell_2021_COVID](https://doi.org/10.1016/j.cell.2021.02.018) and [Triana_et_al_Nat_Immunol_2021_Leukemia](https://doi.org/10.1038/s41590-021-01059-0). Instructions for downloading the data can be found [here](https://github.com/anglixue/asiosc_hackathon/tree/main/data).
+The datasets for this Hackathon are taken from two papers: [Liu_et_al_Cell_2021_COVID](https://doi.org/10.1016/j.cell.2021.02.018) and [Triana_et_al_Nat_Immunol_2021_Leukemia](https://doi.org/10.1038/s41590-021-01059-0). Instructions for downloading the data can be found in Angli's page [here](https://github.com/anglixue/asiosc_hackathon/tree/main/data).
 
 ## Code and generated data
 
 I will be initially focusing on Challenge 1. The scripts are located in the `/src` folder. A brief description of the steps are as follows, focusing on the Adaptive dataset in Liu et al.
 
 1. Split the gene expression data by batch and donor, and process and integrate the data using Seurat's [workflow](https://satijalab.org/seurat/articles/integration_introduction.html). The script can be found [here]() and output integrated Seurat object [here].(https://www.dropbox.com/s/saaylo7lo3v3l9n/integrated_seurat_protein.rds?dl=0).
-2. Split the protein data by batch and donor, and process and integrate the data using Seurat's [workflow](https://satijalab.org/seurat/articles/integration_introduction.html). The script can be found [here]() and output integrated Seurat object [here].
+2. Split the protein data by batch and donor, and process and integrate the data using Seurat's [workflow](https://satijalab.org/seurat/articles/integration_introduction.html). The script can be found [here](https://htmlpreview.github.io/?https://github.com/raymondlouie/Hackathon-ASI-2022/blob/main/src/v1_integrate_protein.html) and output integrated Seurat object [here](https://www.dropbox.com/s/saaylo7lo3v3l9n/integrated_seurat_protein.rds?dl=0).
 3. Combine the integrated gene and protein matrices using Seurat's WNN (workflow)[https://satijalab.org/seurat/articles/weighted_nearest_neighbor_analysis.html]. The script can be found [here]() and output integrated Seurat object [here].
 
 ## Links
