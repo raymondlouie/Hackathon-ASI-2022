@@ -24,18 +24,18 @@ The datasets for this Hackathon are taken from two papers: [Liu_et_al_Cell_2021_
 
 I will be initially focusing on Challenge 1. The scripts are located in the `/src` folder. A brief description of the steps are as follows, focusing on the Adaptive dataset in Liu et al.
 
-1. Split the gene expression data by batch and donor, and process and integrate the data using Seurat's [workflow](https://satijalab.org/seurat/articles/integration_introduction.html). The script can be found [here]() and output integrated Seurat object [here].(https://www.dropbox.com/s/frp69o8sieq7t5g/integrated_seurat_gene_ref.rds?dl=0).
-2. Split the protein data by batch and donor, and process and integrate the data using Seurat's [workflow](https://satijalab.org/seurat/articles/integration_introduction.html). The script can be found [here](https://htmlpreview.github.io/?https://github.com/raymondlouie/Hackathon-ASI-2022/blob/main/src/v1_integrate_protein.html) and output integrated Seurat object [here](https://www.dropbox.com/s/saaylo7lo3v3l9n/integrated_seurat_protein.rds?dl=0).
-3. Combine the integrated gene and protein matrices using Seurat's WNN (workflow)[https://satijalab.org/seurat/articles/weighted_nearest_neighbor_analysis.html]. The script can be found [here]() and output integrated Seurat object [here](https://www.dropbox.com/s/90m94yrh02bv8et/wnn_integrated.RData?dl=0).
+1. Split the gene expression data by batch and donor, and process and integrate the data using Seurat's [workflow](https://satijalab.org/seurat/articles/integration_introduction.html). The script can be found [here](https://github.com/raymondlouie/Hackathon-ASI-2022/blob/main/src/v1_integrate_gene_ref.Rmd) and output integrated Seurat object [here].(https://www.dropbox.com/s/frp69o8sieq7t5g/integrated_seurat_gene_ref.rds?dl=0).
+2. Split the protein data by batch and donor, and process and integrate the data using Seurat's [workflow](https://satijalab.org/seurat/articles/integration_introduction.html). The script can be found [here](https://github.com/raymondlouie/Hackathon-ASI-2022/blob/main/src/v1_integrate_protein.Rmd), html [here](https://htmlpreview.github.io/?https://github.com/raymondlouie/Hackathon-ASI-2022/blob/main/src/v1_integrate_protein.html) and output integrated Seurat object [here](https://www.dropbox.com/s/saaylo7lo3v3l9n/integrated_seurat_protein.rds?dl=0).
+3. Combine the integrated gene and protein matrices using Seurat's WNN (workflow)[https://satijalab.org/seurat/articles/weighted_nearest_neighbor_analysis.html]. The script can be found [here](https://github.com/raymondlouie/Hackathon-ASI-2022/blob/main/src/v2_merge_seurat_protein_gene_wnn.Rmd), output html [here]() and output integrated Seurat object [here](https://www.dropbox.com/s/90m94yrh02bv8et/wnn_integrated.RData?dl=0).
 
 ## Methods which choose optimal gene or protein markers
 
-1. [Detection of cell markers from single cell RNA-seq with sc2marker](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/s12859-022-04817-5). [Bioconductor/GitHub](https://github.com/CostaLab/sc2marker)
-2. [geneBasis: an iterative approach for
+1. Paper: [Detection of cell markers from single cell RNA-seq with sc2marker](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/s12859-022-04817-5). Tutorial and code (R): [Bioconductor/GitHub](https://github.com/CostaLab/sc2marker)
+2. Paper: [geneBasis: an iterative approach for
 unsupervised selection of targeted gene
-panels from scRNA-seq](https://link.springer.com/content/pdf/10.1186/s13059-021-02548-z.pdf)
-3. [https://www.nature.com/articles/s41467-021-21453-4](https://www.nature.com/articles/s41467-021-21453-4). [Bioconductor/GitHub](https://github.com/MarioniLab/geneBasisR)
-4. [CiteFuse enables multi-modal analysis of CITE-seq data](https://academic.oup.com/bioinformatics/article/36/14/4137/5827474). [Bioconductor/GitHub](https://www.bioconductor.org/packages/release/bioc/html/CiteFuse.html)
+panels from scRNA-seq](https://link.springer.com/content/pdf/10.1186/s13059-021-02548-z.pdf). Tutorial and code (R): [Bioconductor/GitHub](https://github.com/MarioniLab/geneBasisR)
+3. Paper: [Optimal marker gene selection for cell type discrimination in single cell analyses](https://www.nature.com/articles/s41467-021-21453-4). Tutorial and code (Python): [Bioconductor/GitHub](https://github.com/solevillar/scGeneFit-python).
+4. Paper: [CiteFuse enables multi-modal analysis of CITE-seq data](https://academic.oup.com/bioinformatics/article/36/14/4137/5827474). Tutorial and code (R): [Bioconductor/GitHub](https://www.bioconductor.org/packages/release/bioc/html/CiteFuse.html)
 
 ## Hackathon links
 
