@@ -1,0 +1,114 @@
+---
+title: "WNN"
+author: "Raymond Louie"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    number_sections: yes
+    self_contained: yes
+    toc: yes
+    toc_float: yes
+  pdf_document:
+    toc: yes   
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache=FALSE)
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(results = 'asis')
+knitr::opts_chunk$set(fig.width = 25)
+knitr::opts_chunk$set(fig.height = 10)
+knitr::opts_chunk$set(fig.pos = '!h')
+knitr::opts_knit$set(root.dir = getwd())
+knitr::knit_hooks$set(timeit = local({
+  now = NULL
+  function(before, options) {
+    if (before) {
+      now <<- Sys.time()
+    } else {
+      res = difftime(Sys.time(), now)
+      now <<- NULL
+      # use options$label if you want the chunk label as well
+      paste('Time for this code chunk:', as.character(res))
+    }
+  }})
+)
+```
+```{r clear, echo=FALSE}
+rm(list = ls())
+graphics.off()
+```
+<!-- First we load the libraries: -->
+
+```{r,warning=FALSE,message=FALSE,echo=FALSE}
+library(Matrix)
+library(dplyr)
+library(Seurat)
+library(ggplot2)
+library(grid)
+require(gridExtra)
+library(data.table)
+library(knitr)
+library(kableExtra)
+
+```
+
+
+
+```{r,warning=FALSE,message=FALSE,echo=FALSE, fig.width=15,fig.height=5,results='asis'}
+immune.combined=readRDS("integrated_seurat_gene_ref.rds")
+immune.combined_protein=readRDS("integrated_seurat_protein.rds")
+
+
+immune.combined <- RunUMAP(immune.combined, reduction = "pca", dims = 1:30, reduction.name = "umap.RNA")
+immune.combined_protein <- RunUMAP(immune.combined_protein, reduction = "pca", dims = 1:30, reduction.name = "umap.protein")
+
+
+immune.combined[["protpca"]] <- immune.combined_protein[["pca"]]
+
+```
+
+```{r}
+
+# The prune.SNN parameter needs to be low enough that we don't end up with any cells
+#  in the SNN graph with no neighbours.
+immune.combined <-  FindMultiModalNeighbors(
+  immune.combined, reduction.list = list("pca", "protpca"), 
+  dims.list = list(1:30, 1:20), modality.weight.name = c("RNA.weight", "PROTEIN.weight"),
+  k.nn = 20, prune.SNN = 0.05
+)
+
+```
+
+```{r}
+
+immune.combined <- RunUMAP(immune.combined, nn.name = "weighted.nn", reduction.name = "wnn.umap", reduction.key = "wnnUMAP_")
+
+```
+
+
+```{r}
+Idents(immune.combined) = immune.combined$cell_type
+
+p1 <- DimPlot(immune.combined, reduction = 'wnn.umap', label = TRUE, repel = TRUE, label.size = 2.5) + NoLegend()
+p1
+```
+
+
+
+
+```{r}
+
+p1=VlnPlot(immune.combined, features = "RNA.weight",  sort = TRUE, pt.size = 0.1) +
+  NoLegend()
+p1
+
+```
+
+<!-- ```{r} -->
+
+<!-- save(immune.combined, -->
+<!--      file = c("wnn_integrated.RData")) -->
+<!-- ``` -->

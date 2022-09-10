@@ -72,6 +72,7 @@ meta_df$batch_donor = paste0(meta_df$Batch,"_",
 unique_batch_donor = unique(meta_df$batch_donor)
 # unique_batch_donor=unique_batch_donor[1:2]
 
+
 seurat_gene.list = list()
 for (ind in 1:length(unique_batch_donor)){
   curr_batch_donor = unique_batch_donor[[ind]]
@@ -96,10 +97,24 @@ for (ind in 1:length(unique_batch_donor)){
 
 # Integration
 
+Choose donors/batch as references for integration, to reflect a diversity of severity.outcome and disease, otherwise integration takes too long.
+
+```{r}
+batch_donor_table= data.frame(table(paste0(meta_df$batch_donor,"_",
+                                          meta_df$disease,"_",
+                                          meta_df$severity.outcome)))
+batch_donor_table= batch_donor_table[order(batch_donor_table$Freq,decreasing=TRUE),]
+
+batch_donor_keep = c("B3_HGR0000051","B2_HGR0000069","B3_HGR0000430","B1_HGR0000071","B1_HGR0000083","B1_HGR0000136","B2_HGR0000124","B2_HGR0000418","B3_HGR0000429","B2_HGR0000144","B3_SHD5","B2_HDVO","B3_SHD1","B2_HDML","B2_SHD4")
+
+```
+
+
 ```{r}
 
 features <- SelectIntegrationFeatures(object.list = seurat_gene.list)
-immune.anchors <- FindIntegrationAnchors(object.list = seurat_gene.list, anchor.features = features)
+immune.anchors <- FindIntegrationAnchors(object.list = seurat_gene.list, anchor.features = features,
+                                         reference=which(names(seurat_gene.list) %in% batch_donor_keep))
 # this command creates an 'integrated' data assay
 immune.combined <- IntegrateData(anchorset = immune.anchors)
 
@@ -138,7 +153,7 @@ p1 + p2
 ```{r}
 integrated_seurat_gene = immune.combined
 saveRDS(integrated_seurat_gene,
-        file="integrated_seurat_gene.rds")
+        file="integrated_seurat_gene_ref.rds")
 
 ```
 
